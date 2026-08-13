@@ -1,0 +1,35 @@
+services:
+  # Backend FastAPI Web Service
+  - type: web
+    name: prove-backend
+    env: python
+    region: oregon
+    buildCommand: pip install -r backend/requirements.txt || pip install backend/
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    rootDir: backend
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: MONGODB_URI
+        sync: false
+      - key: MONGODB_DB_NAME
+        value: prove
+      - key: JWT_SECRET
+        generateValue: true
+      - key: LLM_API_KEY
+        sync: false
+
+  # Frontend React Static Site
+  - type: web
+    name: prove-frontend
+    env: static
+    region: oregon
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    rootDir: frontend
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: prove-backend
+          property: url

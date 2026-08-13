@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  mongo:
+    image: mongo:6.0
+    restart: unless-stopped
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - prove_net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env.prod
+    depends_on:
+      - mongo
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    networks:
+      - prove_net
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    restart: unless-stopped
+    networks:
+      - prove_net
+
+volumes:
+  mongo_data:
+
+networks:
+  prove_net:
+    driver: bridge

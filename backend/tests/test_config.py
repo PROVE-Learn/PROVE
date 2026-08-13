@@ -14,7 +14,7 @@ def test_settings_defaults_include_local_mongodb_configuration():
 
 def test_production_requires_secure_jwt_secret_and_llm_key():
     with pytest.raises(ValidationError, match="JWT_SECRET"):
-        Settings(app_env="production")
+        Settings(app_env="production", jwt_secret="change-me")
 
     with pytest.raises(ValidationError, match="LLM_API_KEY"):
         Settings(

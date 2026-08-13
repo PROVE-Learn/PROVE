@@ -34,7 +34,7 @@ def test_get_database_requires_a_connection():
 async def test_connect_to_mongodb_surfaces_ping_failures(monkeypatch):
     created_clients = []
 
-    def create_client(uri: str) -> FailingMongoClient:
+    def create_client(uri: str, *args, **kwargs) -> FailingMongoClient:
         mongo_client = FailingMongoClient(uri)
         created_clients.append(mongo_client)
         return mongo_client

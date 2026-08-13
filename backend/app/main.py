@@ -50,8 +50,12 @@ async def _ensure_indexes() -> None:
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     settings = get_settings()
-    await connect_to_mongodb(settings)
-    await _ensure_indexes()
+    try:
+        await connect_to_mongodb(settings)
+        await _ensure_indexes()
+    except Exception as e:
+        import logging
+        logging.warning(f"MongoDB connection failed: {e}. App running in degraded mode.")
     yield
     await close_mongodb_connection()
 

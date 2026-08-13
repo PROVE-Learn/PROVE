@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prove-frontend
+  labels:
+    app: prove-frontend
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: prove-frontend
+  template:
+    metadata:
+      labels:
+        app: prove-frontend
+    spec:
+      containers:
+        - name: frontend
+          image: ghcr.io/<your-org>/prove-frontend:latest
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "250m"
+              memory: "256Mi"
