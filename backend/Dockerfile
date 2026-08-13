@@ -7,16 +7,17 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential gcc curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install pip tools
-RUN python -m pip install --upgrade pip setuptools wheel
+# Upgrade pip
+RUN python -m pip install --upgrade pip
 
-# Copy project files and install dependencies
-COPY pyproject.toml ./
-RUN pip install --no-cache-dir .
+# Install Python dependencies via requirements.txt (paths relative to repo root)
+COPY backend/requirements.txt ./requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
-COPY app ./app
+# Copy application source
+COPY backend/app ./app
 
 EXPOSE 8000
 
+# Railway injects $PORT — fall back to 8000 locally
 CMD uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
