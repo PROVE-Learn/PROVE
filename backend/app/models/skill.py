@@ -2,7 +2,7 @@ from datetime import datetime
 
 from pydantic import BaseModel, Field
 
-from app.models.common import MasteryLevel
+from app.models.common import MasteryLevel, MasteryState, SkillSource
 
 
 class SkillInDB(BaseModel):
@@ -14,6 +14,10 @@ class SkillInDB(BaseModel):
     prerequisites: list[str] = Field(default_factory=list)
     description: str = ""
     verification_sources: list[str] = Field(default_factory=list)
+    related_skills: list[str] = Field(default_factory=list)
+    difficulty: int = Field(default=1, ge=1, le=5)
+    version: str = "1.0"
+    active: bool = True
     created_at: datetime
 
     model_config = {"populate_by_name": True}
@@ -27,6 +31,10 @@ class SkillCreate(BaseModel):
     prerequisites: list[str] = Field(default_factory=list)
     description: str = ""
     verification_sources: list[str] = Field(default_factory=list)
+    related_skills: list[str] = Field(default_factory=list)
+    difficulty: int = Field(default=1, ge=1, le=5)
+    version: str = "1.0"
+    active: bool = True
 
 
 class SkillSignal(BaseModel):
@@ -62,5 +70,13 @@ class UserSkillProgressInDB(BaseModel):
     evidence_records: list[EvidenceRecord] = Field(default_factory=list)
     next_retest_at: datetime | None = None
     updated_at: datetime
+    current_level: int = Field(default=0, ge=0, le=5)
+    target_level: int = Field(default=3, ge=0, le=5)
+    evidence: list[str] = Field(default_factory=list)
+    source: SkillSource = SkillSource.USER_REPORTED
+    confidence: float = Field(default=0.0, ge=0, le=1)
+    last_assessed: datetime | None = None
+    progress: float = Field(default=0.0, ge=0, le=1)
+    status: MasteryState = MasteryState.NOT_STARTED
 
     model_config = {"populate_by_name": True}

@@ -44,6 +44,10 @@ class SkillRepository:
                         "prerequisites": skill.prerequisites,
                         "description": skill.description,
                         "verification_sources": skill.verification_sources,
+                        "related_skills": skill.related_skills,
+                        "difficulty": skill.difficulty,
+                        "version": skill.version,
+                        "active": skill.active,
                     }
                 },
             )
@@ -57,6 +61,10 @@ class SkillRepository:
                 "prerequisites": skill.prerequisites,
                 "description": skill.description,
                 "verification_sources": skill.verification_sources,
+                "related_skills": skill.related_skills,
+                "difficulty": skill.difficulty,
+                "version": skill.version,
+                "active": skill.active,
                 "created_at": now,
             }
             result = await self._collection.insert_one(doc)

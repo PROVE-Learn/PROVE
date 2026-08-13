@@ -18,6 +18,7 @@ class CareerAssessmentInDB(BaseModel):
     dimensions: dict[str, DimensionResult] = Field(default_factory=dict)
     raw_responses: list[dict] = Field(default_factory=list)
     completed_at: datetime | None = None
+    question_version: str = "1.0"
     created_at: datetime
 
     model_config = {"populate_by_name": True}

@@ -4,9 +4,9 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from app.config import get_settings
 from app.db.collections import USERS
-from app.db.repositories.base import serialize_doc
+from app.db.repositories.base import serialize_doc, to_object_id
 from app.models.common import UserPhase, UserRole
-from app.models.user import UserCreate, UserInDB
+from app.models.user import UserCreate, UserInDB, UserProfileUpdate
 
 
 class UserRepository:
@@ -53,6 +53,7 @@ class UserRepository:
             "target_role_id": None,
             "target_company_id": None,
             "preferences": {},
+            "profile": {},
             "created_at": now,
             "updated_at": now,
             "is_active": True,
@@ -60,6 +61,37 @@ class UserRepository:
         result = await self._collection.insert_one(doc)
         doc["_id"] = result.inserted_id
         return UserInDB.model_validate(serialize_doc(doc))
+
+    async def get_profile(self, user_id: str) -> UserInDB | None:
+        return await self.get_by_id(user_id)
+
+    async def update_profile(self, user_id: str, update: UserProfileUpdate) -> UserInDB | None:
+        values = update.model_dump(exclude_unset=True)
+        db_update: dict[str, object] = {"updated_at": datetime.now(UTC)}
+        if "display_name" in values:
+            db_update["display_name"] = values.pop("display_name")
+        if "learning_preferences" in values:
+            preferences = values.pop("learning_preferences")
+            db_update["preferences"] = preferences.model_dump() if preferences else {}
+        for field, value in values.items():
+            db_update[f"profile.{field}"] = value
+
+        result = await self._collection.find_one_and_update(
+            {"_id": to_object_id(user_id)},
+            {"$set": db_update},
+            return_document=True,
+        )
+        serialized = serialize_doc(result)
+        return UserInDB.model_validate(serialized) if serialized else None
+
+    async def set_target_companies(self, user_id: str, company_ids: list[str]) -> UserInDB | None:
+        result = await self._collection.find_one_and_update(
+            {"_id": to_object_id(user_id)},
+            {"$set": {"profile.target_companies": company_ids, "updated_at": datetime.now(UTC)}},
+            return_document=True,
+        )
+        serialized = serialize_doc(result)
+        return UserInDB.model_validate(serialized) if serialized else None
 
 
 class BetaCapacityError(Exception):

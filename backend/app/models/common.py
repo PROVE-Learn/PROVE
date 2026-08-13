@@ -16,6 +16,38 @@ class UserRole(StrEnum):
     ADMIN = "admin"
 
 
+class ExperienceLevel(StrEnum):
+    STUDENT = "student"
+    ENTRY_LEVEL = "entry_level"
+    JUNIOR = "junior"
+    MID = "mid"
+    SENIOR = "senior"
+
+
+class SelfReportedSkillLevel(StrEnum):
+    BEGINNER = "beginner"
+    INTERMEDIATE = "intermediate"
+    ADVANCED = "advanced"
+
+
+class MemoryCategory(StrEnum):
+    DEMONSTRATED_SKILL = "demonstrated_skill"
+    DEMONSTRATED_WEAKNESS = "demonstrated_weakness"
+    CAREER_GOAL = "career_goal"
+    LEARNING_PREFERENCE = "learning_preference"
+    COMPLETED_ACTIVITY = "completed_activity"
+    PROJECT_DECISION = "project_decision"
+    ASSESSMENT_RESULT = "assessment_result"
+    INTERVIEW_WEAKNESS = "interview_weakness"
+
+
+class MemorySource(StrEnum):
+    USER_REPORTED = "USER_REPORTED"
+    SYSTEM_OBSERVED = "SYSTEM_OBSERVED"
+    ASSESSMENT_DERIVED = "ASSESSMENT_DERIVED"
+    AI_INFERRED = "AI_INFERRED"
+
+
 class UserPhase(StrEnum):
     ONBOARDING = "ONBOARDING"
     CAREER_DISCOVERY = "CAREER_DISCOVERY"
@@ -43,6 +75,21 @@ class MasteryLevel(StrEnum):
     PROFICIENT = "PROFICIENT"
     HIGH_CONFIDENCE_MASTERY = "HIGH_CONFIDENCE_MASTERY"
     INSUFFICIENT_EVIDENCE = "INSUFFICIENT_EVIDENCE"
+
+
+class SkillSource(StrEnum):
+    USER_REPORTED = "USER_REPORTED"
+    ASSESSMENT_DERIVED = "ASSESSMENT_DERIVED"
+    SYSTEM_OBSERVED = "SYSTEM_OBSERVED"
+    AI_INFERRED = "AI_INFERRED"
+
+
+class MasteryState(StrEnum):
+    NOT_STARTED = "NOT_STARTED"
+    LEARNING = "LEARNING"
+    PRACTICING = "PRACTICING"
+    DEMONSTRATED = "DEMONSTRATED"
+    MASTERED = "MASTERED"
 
 
 class ReviewStatus(StrEnum):

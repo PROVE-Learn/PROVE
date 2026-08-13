@@ -54,6 +54,14 @@ class UserSkillProgressRepository:
             "evidence_records": [],
             "next_retest_at": None,
             "updated_at": now,
+            "current_level": 0,
+            "target_level": 3,
+            "evidence": [],
+            "source": "USER_REPORTED",
+            "confidence": 0.0,
+            "last_assessed": None,
+            "progress": 0.0,
+            "status": "NOT_STARTED",
         }
         result = await self._collection.insert_one(doc)
         doc["_id"] = result.inserted_id
@@ -67,6 +75,14 @@ class UserSkillProgressRepository:
             {"user_id": user_id, "skill_id": skill_id},
             {"$set": {"mastery_level": mastery_level.value, "updated_at": now}},
             return_document=True,
+        )
+        serialized = serialize_doc(result)
+        return UserSkillProgressInDB.model_validate(serialized) if serialized else None
+
+    async def update_details(self, user_id: str, skill_id: str, values: dict) -> UserSkillProgressInDB | None:
+        values = {**values, "updated_at": datetime.now(UTC)}
+        result = await self._collection.find_one_and_update(
+            {"user_id": user_id, "skill_id": skill_id}, {"$set": values}, return_document=True
         )
         serialized = serialize_doc(result)
         return UserSkillProgressInDB.model_validate(serialized) if serialized else None
