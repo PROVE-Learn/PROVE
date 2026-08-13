@@ -24,6 +24,7 @@ from app.services.company_intelligence_service import CompanyIntelligenceService
 from app.db.repositories.company_intelligence_repository import CompanyRepository, EvidenceClaimRepository, JobPostingRepository
 from app.company_intelligence.research import CompanyResearchProvider
 from app.db.repositories.learning_repository import LearningPlanRepository, ActivityProgressRepository
+from app.db.repositories.learning_repository import WeeklyPlanRepository
 from app.services.readiness_service import ReadinessService
 from app.services.readiness_review_service import ReadinessReviewService
 
@@ -94,7 +95,12 @@ def get_company_research_provider() -> CompanyResearchProvider:
     raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="No research provider configured")
 
 def get_learning_service(db: AsyncIOMotorDatabase = Depends(get_db)) -> LearningService:
-    return LearningService(SkillRepository(db), UserSkillProgressRepository(db), CareerRoleSelectionRepository(db), LearningPlanRepository(db), ActivityProgressRepository(db), UserMemoryRepository(db))
+    svc = LearningService(SkillRepository(db), UserSkillProgressRepository(db), CareerRoleSelectionRepository(db), LearningPlanRepository(db), ActivityProgressRepository(db), UserMemoryRepository(db))
+    # attach weekly plan persistence repository so LearningService can persist weekly plans
+    from app.db.repositories.learning_repository import WeeklyPlanRepository
+
+    svc.weekly_plans = WeeklyPlanRepository(db)
+    return svc
 
 
 def get_readiness_service(db: AsyncIOMotorDatabase = Depends(get_db)) -> ReadinessService:
@@ -115,6 +121,10 @@ def get_readiness_review_service(db: AsyncIOMotorDatabase = Depends(get_db)) -> 
         EvidenceClaimRepository(db),
         UserMemoryRepository(db),
     )
+
+
+def get_weekly_plan_repo(db: AsyncIOMotorDatabase = Depends(get_db)) -> WeeklyPlanRepository:
+    return WeeklyPlanRepository(db)
 
 
 def get_verification_record_repo(

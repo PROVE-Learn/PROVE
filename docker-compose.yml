@@ -11,6 +11,34 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
+    networks:
+      - prove-network
+
+  backend:
+    build:
+      context: ./backend
+    container_name: prove-backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongodb:
+        condition: service_started
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017
+      - MONGODB_DB_NAME=prove
+    env_file:
+      - ./backend/.env
+    restart: unless-stopped
+    networks:
+      - prove-network
+    volumes:
+      - ./backend/logs:/app/logs
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 volumes:
   prove_mongodb_data:
+
+networks:
+  prove-network:
+    driver: bridge

@@ -24,3 +24,36 @@ class LearningActivity(BaseModel):
 
 class ProgressItem(BaseModel):
     skill_id: str; current_level: int; target_level: int; progress: float; status: MasteryState; evidence: list[str] = Field(default_factory=list)
+
+class MentorSummary(BaseModel):
+    user_id: str
+    target_role: str
+    weekly_focus: str
+    top_gaps: list[str] = Field(default_factory=list)
+    recommended_projects: list[str] = Field(default_factory=list)
+    next_steps: list[str] = Field(default_factory=list)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    model_config = {"populate_by_name": True}
+
+class WeeklyMilestone(BaseModel):
+    day: str
+    objective: str
+    task: str
+    outcome: str
+
+class WeeklyMentorPlan(BaseModel):
+    user_id: str
+    target_role: str
+    weekly_focus: str
+    milestones: list[WeeklyMilestone] = Field(default_factory=list)
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    model_config = {"populate_by_name": True}
+
+class AdaptiveRoadmap(BaseModel):
+    user_id: str
+    target_role: str
+    focus: str
+    adjustments: list[str] = Field(default_factory=list)
+    next_milestone: str
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    model_config = {"populate_by_name": True}

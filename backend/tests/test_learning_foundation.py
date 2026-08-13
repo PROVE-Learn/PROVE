@@ -3,7 +3,7 @@ import pytest
 from app.learning.catalog import ROLE_SKILL_REQUIREMENTS, SKILLS_BY_ID
 from app.models.common import MasteryState, MemorySource, SkillSource
 from app.models.learning import ActivityState
-from app.models.user import UserInDB
+from app.models.user import UserInDB, UserPreferences
 from app.db.repositories.user_skill_progress_repository import UserSkillProgressRepository
 from app.services.learning_service import calculate_skill_gaps, order_learning_stages, LearningService
 from tests.fake_mongo import FakeDatabase
@@ -57,3 +57,25 @@ async def test_ai_inferred_source_is_distinct_from_verified_state():
     repo = UserSkillProgressRepository(FakeDatabase()); await repo.create_or_get("u1", "python")
     updated = await repo.update_details("u1", "python", {"source": SkillSource.AI_INFERRED.value, "status": MasteryState.LEARNING.value})
     assert updated.source == SkillSource.AI_INFERRED and updated.status != MasteryState.MASTERED
+
+@pytest.mark.asyncio
+async def test_mentor_summary_uses_saved_learning_preferences():
+    user = UserInDB(
+        _id="u-preferences",
+        email="prefs@example.com",
+        password_hash="x",
+        display_name="Prefs User",
+        created_at=datetime.now(UTC),
+        updated_at=datetime.now(UTC),
+        preferences=UserPreferences(
+            learning_style="hands-on",
+            available_study_time="30 minutes",
+            preferred_difficulty="beginner",
+            learning_goals=["Python", "APIs"],
+        ),
+    )
+    service = LearningService(None, _Progress(), _Roles(), _Plans(), None, None)
+    summary = await service.mentor_summary("u-preferences", user)
+    assert "hands-on" in summary.weekly_focus.lower()
+    assert "30" in summary.weekly_focus or any("30" in step for step in summary.next_steps)
+    assert "python" in " ".join(summary.top_gaps).lower() or "apis" in " ".join(summary.next_steps).lower()
